@@ -85,7 +85,6 @@ int main() {
         // Free statement handle
         SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
 
-
         ret = SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt);
         cout << "+--------------------------------------+" << endl;
         cout << "| Num_Empleado " << "| Pres_Gas" << " | Num_Centro |" << endl;
