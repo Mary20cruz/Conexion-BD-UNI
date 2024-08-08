@@ -5,6 +5,7 @@
 #include <sql.h>
 #include <sqlext.h>
 #include <iostream>
+#include <iomanip>
 
 using namespace std;
 
@@ -26,12 +27,17 @@ int main() {
     if (ret == SQL_SUCCESS || ret == SQL_SUCCESS_WITH_INFO) {
         cout << "Connected to database successfully." << endl;
 
+
         // Example of executing a query
         SQLHSTMT hStmt;
         ret = SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt);
-        cout << "+--------------------------------------------------------------------------------------------------------------------------------------------------------+" << endl;
-        cout << "| Num_Emp " << " | Nombre_Emp " << " | A_Paterno_Emp " << " | A_Materno_Emp " << "|  Fecha_Nac_Emp " << "  |    RFC_Emp " << "     |  Nom_Puesto_Emp " << "|          Desc_Puesto_Emp              |" << endl;
-                // Example SELECT query
+
+        // print table headers
+        cout << "+---------+----------------------------+-------------+-------------+-----------------+-----------------+-----------------+" << endl;
+        cout << "| No. Emp |      Nombre Completo       |  Fecha Nac  |     RFC     |  Nombre Centro  | Desc del puesto |  Es Directivo?  |" << endl;
+        cout << "+---------+----------------------------+-------------+-------------+-----------------+-----------------+-----------------+" << endl;
+               
+        // Example SELECT query
         ret = SQLExecDirect(hStmt, (SQLWCHAR*)L"SELECT * FROM Empleado", SQL_NTS);
         if (ret == SQL_SUCCESS || ret == SQL_SUCCESS_WITH_INFO) {
             int num_empleado;
@@ -40,9 +46,10 @@ int main() {
             SQLCHAR a_materno[50];
             SQLCHAR fecha_nac[50];
             SQLCHAR rfc[50];
-            SQLCHAR puesto[50];
-            SQLCHAR desc_puesto[100];
-                        
+            SQLCHAR puesto[100];
+            SQLCHAR nom_cent[50];
+            SQLCHAR direc[10];
+
             while (SQLFetch(hStmt) == SQL_SUCCESS) {
                 SQLGetData(hStmt, 1, SQL_C_LONG, &num_empleado, 0, NULL);
                 SQLGetData(hStmt, 2, SQL_C_CHAR, nombre, sizeof(nombre), NULL);
@@ -51,13 +58,41 @@ int main() {
                 SQLGetData(hStmt, 5, SQL_C_CHAR, fecha_nac, sizeof(fecha_nac), NULL);
                 SQLGetData(hStmt, 6, SQL_C_CHAR, rfc, sizeof(rfc), NULL);
                 SQLGetData(hStmt, 7, SQL_C_CHAR, puesto, sizeof(puesto), NULL);
-                SQLGetData(hStmt, 8, SQL_C_CHAR, desc_puesto, sizeof(desc_puesto), NULL);
-                                                                
-                cout << "| " << num_empleado << "      " << nombre << "            " << a_paterno << "         " << a_materno << "         " << fecha_nac << "        " << rfc << "       " << puesto << "           " << desc_puesto  << endl;
+                SQLGetData(hStmt, 9, SQL_C_CHAR, nom_cent, sizeof(nom_cent), NULL);
+                SQLGetData(hStmt, 10, SQL_C_CHAR, direc, sizeof(direc), NULL);
 
+                // concatenete paternal name and surname
+                string last_names = string((char*)a_paterno) + " " + string((char*)a_materno);
+                string full_name = string((char*)nombre) + " " + string(last_names);
+
+                // manager change to yes and no
+                string dir = string((char*)direc);
+                string respuesta;
+
+                if (dir == "1") {
+                    respuesta = "SI";
+                }
+                else
+                {
+                    respuesta = "NO";
+                }
+
+
+                // Print row data with alignment
+                cout << "| " << setw(8) << left << num_empleado
+                     << "| " << setw(27) << left << full_name
+                     << "| " << setw(12) << left << fecha_nac
+                     << "| " << setw(12) << left << rfc
+                     << "| " << setw(16) << left << nom_cent
+                     << "| " << setw(16) << left << puesto
+                     << "| " << setw(15) << left << respuesta << " |" << endl;
             }
         }
 
+        // print final line of the table
+        cout << "+---------+----------------------------+-------------+-------------+-----------------+-----------------+-----------------+" << endl;
+
+         
         // Free statement handle
         SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
 
