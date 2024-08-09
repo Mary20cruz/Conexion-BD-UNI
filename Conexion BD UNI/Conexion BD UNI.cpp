@@ -34,7 +34,7 @@ int main() {
 
         // print table headers
         cout << "+---------+----------------------------+-------------+-------------+-----------------+-----------------+-----------------+" << endl;
-        cout << "| No. Emp |      Nombre Completo       |  Fecha Nac  |     RFC     |  Nombre Centro  | Desc del puesto |  Es Directivo?  |" << endl;
+        cout << "| No. Emp |      Nombre Completo       |  Fecha Nac  |     RFC     |  Numero Centro  | Desc del puesto |  Es Directivo?  |" << endl;
         cout << "+---------+----------------------------+-------------+-------------+-----------------+-----------------+-----------------+" << endl;
                
         // Example SELECT query
@@ -97,9 +97,14 @@ int main() {
         SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
 
         
+
+
         ret = SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt);
-        cout << "+-------------------------------------------------------------------+" << endl;
-        cout << "|  Num_Centro " << "|      Nombre_Centro " << "            |   Ciudad_Centro    |" << endl;
+        // print table headers
+        cout << "+-----------+--------------------------------+-----------------+" << endl;
+        cout << "| No Centro |         Nombre Centro          |  Ciudad Centro  |" << endl;
+        cout << "+-----------+--------------------------------+-----------------+" << endl;
+                      
         // Example SELECT query
         ret = SQLExecDirect(hStmt, (SQLWCHAR*)L"SELECT * FROM Centro", SQL_NTS);
         if (ret == SQL_SUCCESS || ret == SQL_SUCCESS_WITH_INFO) {
@@ -112,17 +117,28 @@ int main() {
                 SQLGetData(hStmt, 2, SQL_C_CHAR, nombre_centro, sizeof(nombre_centro), NULL);
                 SQLGetData(hStmt, 3, SQL_C_CHAR, ciudad_centro, sizeof(ciudad_centro), NULL);
                 
-                cout << "| " << num_centro << "           " << nombre_centro << "              " << ciudad_centro << endl;
+                // Print row data with alignment
+                cout << "| " << setw(10) << left << num_centro
+                    << "| " << setw(31) << left << nombre_centro
+                    << "| " << setw(15) << left << ciudad_centro << " |" << endl;
 
             }
         }
 
+        // print final line of the table
+        cout << "+-----------+--------------------------------+-----------------+" << endl;
+
         // Free statement handle
         SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
 
+
+
         ret = SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt);
-        cout << "+--------------------------------------+" << endl;
-        cout << "| Num_Empleado " << "| Pres_Gas" << " | Num_Centro |" << endl;
+        // print table headers
+        cout << "+-------------+---------------+------------+" << endl;
+        cout << "| No Empleado | Prest Gaolina |  No Centro |" << endl;
+        cout << "+-------------+---------------+------------+" << endl;
+                
         // Example SELECT query
         ret = SQLExecDirect(hStmt, (SQLWCHAR*)L"SELECT * FROM Directivo", SQL_NTS);
         if (ret == SQL_SUCCESS || ret == SQL_SUCCESS_WITH_INFO) {
@@ -135,13 +151,19 @@ int main() {
                 SQLGetData(hStmt, 2, SQL_C_CHAR, prestacion_gasolina, sizeof(prestacion_gasolina), NULL);
                 SQLGetData(hStmt, 3, SQL_C_LONG, &num_centro, 0, NULL);
 
-                cout << "| " <<  num_empleado << "           " << prestacion_gasolina << "          " << num_centro << endl;
-
+                // Print row data with alignment
+                cout << "| " << setw(12) << left << num_empleado
+                    << "| " << setw(14) << left << prestacion_gasolina
+                    << "| " << setw(10) << left << num_centro << " |" << endl;
+                               
             }
         }
+        // print final line of the table
+        cout << "+-------------+---------------+------------+" << endl;
 
         // Free statement handle
         SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+
 
     }
     else {
